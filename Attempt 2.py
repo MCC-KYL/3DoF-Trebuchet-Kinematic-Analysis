@@ -122,7 +122,9 @@ def solve(theta,theta_dot,phi,phi_dot,Py):
     ])
 
     #Solving for the x matrix which is x = [theta_ddot,phi_ddot,x_ddot,Tension]
-    theta_ddot, phi_ddot,x_ddot,T = np.linalg.solve(A,b)
+    A_inv = np.linalg.inv(A)
+    theta_ddot, phi_ddot,x_ddot,T = A_inv @ b
+    # theta_ddot, phi_ddot,x_ddot,T = np.linalg.solve(A,b)
 
     return theta_ddot, phi_ddot,x_ddot,T
 # def derivatives(theta,theta_dot,phi,phi_dot,Py):
