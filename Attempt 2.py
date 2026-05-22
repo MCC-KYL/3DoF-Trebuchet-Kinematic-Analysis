@@ -413,7 +413,7 @@ df = pd.DataFrame(data)
 # Display full table
 print(df)
 
-Etot = Lb*(np.sin(theta[0] + 1))*mc*g
+Emax= Lb*(np.sin(theta[0] + 1))*mc*g
 
 #Energy Calcs:
 
@@ -429,7 +429,7 @@ Uc = np.zeros(iterations)
 Ub = np.zeros(iterations)
 Up = np.zeros(iterations)
 U_BC = np.zeros(iterations)
-
+Etot = np.zeros(iterations)
 #Energy Norm Arrays:
 KP_Norm = np.zeros(iterations)
 KBC_Norm = np.zeros(iterations)
@@ -441,7 +441,7 @@ Etot_Norm = np.zeros(iterations)
 #Time array
 time = np.zeros(iterations)
 
-for i in range(iterations-1):
+for i in range(iterations):
     gp = g * (1 - np.exp(-alpha*(Py[i]-y0)))
     #Velocity for P
     vp_x[i] = -La*theta_dot[i]*np.sin(theta[i]) - Lp*phi_dot[i]*np.sin(phi[i])
@@ -457,14 +457,15 @@ for i in range(iterations-1):
     Uc[i] = mc*g*Lb*(1-np.sin(theta[i]))
     Ub[i] = mb*g*Lg*(np.sin(theta[i]) + np.sin(theta[0]))
     Up[i] = mp*gp*Py[i]
-
     U_BC[i] = Uc[i] + Ub[i]
+    
+    Etot[i] = K_P[i] + K_BC[i] + K_frame[i] + U_BC[i]
 
-    KP_Norm[i] = K_P[i] / Etot
-    KBC_Norm[i] = K_BC[i] / Etot
-    Kframe_Norm[i] = K_frame[i] / Etot
-    UBC_Norm[i] = U_BC[i] / Etot
-    Up_Norm[i] = Up[i] / Etot
+    KP_Norm[i] = K_P[i] / Etot[i]
+    KBC_Norm[i] = K_BC[i] / Etot[i]
+    Kframe_Norm[i] = K_frame[i] / Etot[i]
+    UBC_Norm[i] = U_BC[i] / Etot[i]
+    Up_Norm[i] = Up[i] / Etot[i]
     Etot_Norm[i] = KP_Norm[i] + KBC_Norm[i] + Kframe_Norm[i] + UBC_Norm[i]
 
     if i == 1:
@@ -488,5 +489,7 @@ plt.xlabel('Time [s]')
 plt.ylabel('Energy fraction')
 plt.title('Energy Norms')
 plt.grid(True)
+ax.legend()
 
 plt.show()
+
