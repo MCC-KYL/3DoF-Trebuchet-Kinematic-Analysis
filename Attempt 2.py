@@ -412,3 +412,81 @@ df = pd.DataFrame(data)
 
 # Display full table
 print(df)
+
+Etot = Lb*(np.sin(theta[0] + 1))*mc*g
+
+#Energy Calcs:
+
+#velocity Arrays
+vp_x = np.zeros(iterations)
+vp_y = np.zeros(iterations)
+vp= np.zeros(iterations)
+#Energy Arrays
+K_BC = np.zeros(iterations)
+K_P = np.zeros(iterations)
+K_frame = np.zeros(iterations)
+Uc = np.zeros(iterations)
+Ub = np.zeros(iterations)
+Up = np.zeros(iterations)
+U_BC = np.zeros(iterations)
+
+#Energy Norm Arrays:
+KP_Norm = np.zeros(iterations)
+KBC_Norm = np.zeros(iterations)
+Kframe_Norm = np.zeros(iterations)
+UBC_Norm = np.zeros(iterations)
+Up_Norm = np.zeros(iterations)
+Etot_Norm = np.zeros(iterations)
+
+#Time array
+time = np.zeros(iterations)
+
+for i in range(iterations-1):
+    gp = g * (1 - np.exp(-alpha*(Py[i]-y0)))
+    #Velocity for P
+    vp_x[i] = -La*theta_dot[i]*np.sin(theta[i]) - Lp*phi_dot[i]*np.sin(phi[i])
+    vp_y[i] = La*theta_dot[i]*np.cos(theta[i]) + Lp*phi_dot[i]*np.cos(phi[i])
+    vp[i] = np.sqrt(vp_x[i]**2 + vp_y[i]**2)
+
+    #Kinetic Energies
+    K_BC[i] = 0.5*I_tot*theta_dot[i]**2
+    K_P[i] = 0.5*mp*vp[i]**2
+    K_frame[i] = 0.5*(mc+mb+mf)*x_dot[i]**2
+
+    #Potential Energies
+    Uc[i] = mc*g*Lb*(1-np.sin(theta[i]))
+    Ub[i] = mb*g*Lg*(np.sin(theta[i]) + np.sin(theta[0]))
+    Up[i] = mp*gp*Py[i]
+
+    U_BC[i] = Uc[i] + Ub[i]
+
+    KP_Norm[i] = K_P[i] / Etot
+    KBC_Norm[i] = K_BC[i] / Etot
+    Kframe_Norm[i] = K_frame[i] / Etot
+    UBC_Norm[i] = U_BC[i] / Etot
+    Up_Norm[i] = Up[i] / Etot
+    Etot_Norm[i] = KP_Norm[i] + KBC_Norm[i] + Kframe_Norm[i] + UBC_Norm[i]
+
+    if i == 1:
+        time[i] = 0
+    else:
+        time[i] = time[i-1] + dt    
+
+
+
+
+plt.figure(figsize=(8,6))
+
+# Plot Energies
+plt.plot(time, KP_Norm, 'g-', linewidth=2)
+plt.plot(time, KBC_Norm, 'b-', linewidth=2)
+plt.plot(time, Kframe_Norm, 'c-', linewidth=2)
+plt.plot(time, UBC_Norm, 'm-', linewidth=2)
+plt.plot(time, Etot_Norm, 'r', linewidth=2)
+
+plt.xlabel('Time [s]')
+plt.ylabel('Energy fraction')
+plt.title('Energy Norms')
+plt.grid(True)
+
+plt.show()
